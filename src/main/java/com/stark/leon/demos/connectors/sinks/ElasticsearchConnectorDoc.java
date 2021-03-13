@@ -1,4 +1,4 @@
-package com.stark.leon.demos.connectors;
+package com.stark.leon.demos.connectors.sinks;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -6,7 +6,7 @@ import org.apache.flink.table.descriptors.Elasticsearch;
 import org.apache.flink.table.descriptors.Json;
 
 /**
- * @title: ElasticsearchConnector
+ * @title: ElasticsearchConnectorDoc
  * @author: Leon Stark
  * @date: 2021/3/8 22:40
  * @desc:   Sink: Streaming Append Mode
@@ -15,7 +15,7 @@ import org.apache.flink.table.descriptors.Json;
  * @msg:  https://blog.csdn.net/lisongjia123/article/details/81121994
  *          https://stackoverflow.com/questions/59453477/flink-elasticsearch-connector
  */
-public class ElasticsearchConnector {
+public class ElasticsearchConnectorDoc {
 	public static void main(String[] args) {
 		// 1.获取执行环境
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
