@@ -17,7 +17,8 @@ import static org.apache.flink.table.api.Expressions.$;
  * @author: Leon Stark
  * @date: 2021/3/24 20:46
  * @desc:
- *          DataStream 转 Table 时指定 事件时间 字段
+ *          DataStream 转 Table 时指定 事件时间 字段 -- 事件时间
+ *          https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/streaming/time_attributes.html
  * @msg:
  */
 public class EventTimeAttribute {
