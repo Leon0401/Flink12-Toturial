@@ -6,6 +6,7 @@ import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.time.Duration;
@@ -17,7 +18,8 @@ import static org.apache.flink.table.api.Expressions.$;
  * @author: Leon Stark
  * @date: 2021/3/24 20:46
  * @desc:
- *          声明DDL 时指定 事件时间 字段
+ *          声明DDL 时指定 事件时间 字段 -- 事件时间
+ *          https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/streaming/time_attributes.html
  * @msg:
  */
 public class EventTimeAttributeOnDDL {
@@ -27,26 +29,26 @@ public class EventTimeAttributeOnDDL {
 		env.setParallelism(1);
 		StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
 
-		WatermarkStrategy<WaterSensor> waterSensorWatermarkStrategy = WatermarkStrategy.<WaterSensor>forBoundedOutOfOrderness(Duration.ofSeconds(3))
-				.withTimestampAssigner((SerializableTimestampAssigner<WaterSensor>) (waterSensor, l) -> waterSensor.getTs() * 1000L);
-
-		SingleOutputStreamOperator<WaterSensor> sensorDs = env.readTextFile("input/sensors.txt")
-				.map(msg -> {
-					String[] split = msg.split(",");
-					return new WaterSensor(split[0],
-							Long.parseLong(split[1]),
-							Integer.parseInt(split[2]));
-				});
-		SingleOutputStreamOperator<WaterSensor> assignedSensorDs = sensorDs.assignTimestampsAndWatermarks(waterSensorWatermarkStrategy);
+		// 2. 使用DDL方式指定事件时间字段
+		TableResult result = tableEnv.executeSql("create table sensor (" +
+				"id string," +
+				"ts bigint," +
+				"vc int," +
+				"rt as to_timestamp(from_unixtimep(ts/1000,'yyyy-MM-dd HH:mm:ss'))," +
+				"watermark for rt as rt - interval '5' second" +
+				") with(" +
+				"   'connector' = 'kafka'," +
+				"   'topic'='test_source'," +
+				"   'properties.bootstrap.servers' = 'node01:9092,node02:9092,node03:9092'," +
+				"   'properties.group.id' = 'testGroup'," +
+				"   'format' = 'json'" +
+				"   )"
+		);
 
 		// 声明处理时间
-		Table sensorTable = tableEnv.fromDataStream(assignedSensorDs,
-				$("id"),
-				$("ts"),
-				$("vc"),
-				$("rt").rowtime());
+		Table sensor = tableEnv.from("sensor");
 
-		sensorTable.printSchema();
-		sensorTable.execute().print();
+		sensor.printSchema();
+		sensor.execute().print();
 	}
 }
