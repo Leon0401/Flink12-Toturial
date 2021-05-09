@@ -60,4 +60,9 @@ input.sinkTo(sink);
     最近 5 分钟没有收到新的记录
     文件大小达到 1GB （写入最后一条记录后）
     
- 
+
+#### window
+##### Group Window & Over Window
+```markdown
+ 滚动、滑动的Group Window 只支持处理时间的计数窗口
+```
