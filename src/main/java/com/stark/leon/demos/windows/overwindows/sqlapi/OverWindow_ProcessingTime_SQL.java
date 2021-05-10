@@ -41,7 +41,8 @@ public class OverWindow_ProcessingTime_SQL {
 		// tableEnv.createTemporaryFunction("UTCToLocal", new UTCToLocal());
 
 		// 4. 使用sql api 实现 基于 处理时间 的 会话窗口
-		// 注意： 多个over window必须是同一类型的，要么都有界，要么都无界 ，并且有界时，界限必须一致
+		// 注意： 多个over window必须是同一类型的，要么都有界，要么都无界 ，并且有界时，界限必须一致,
+		// 既然窗口是一致的，那么就可以简写为sql1中的形式。
 		String sql = "" +
 				"select " +
 				"    id," +
@@ -49,6 +50,15 @@ public class OverWindow_ProcessingTime_SQL {
 				"    count(id) over(partition by id order by pt ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as cnt " +
 				"from " + table +
 				"";
+
+		String sql1 = "" +
+				"select " +
+				"    id," +
+				"    sum(vc) over w as sum_vc," +
+				"    count(id) over w as cnt " +
+				"from " + table +
+				" window w as (partition by id order by pt ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)";
+
 		String sql2 = "" +
 				"select " +
 				"    id," +
